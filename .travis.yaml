@@ -1,0 +1,5 @@
+language: node_js
+notifications:
+  slack:
+    rooms:
+      - dailydroid:p8E2RUuYnHrqp19YsyR2T7YE#general
