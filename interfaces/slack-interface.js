@@ -28,8 +28,11 @@ const messages$ = Observable.create(observer =>
   slackEvents.on('message', event => observer.next(event))
 )
 
+const userInfo = user => web.users.info({ user })
+
 module.exports = {
   middleware: slackEvents.expressMiddleware.bind(slackEvents),
   messages$,
-  send
+  send,
+  userInfo
 }
