@@ -7,6 +7,10 @@ const slackEvents = createSlackEventAdapter(
   process.env.SLACK_VERIFICATION_TOKEN
 )
 
+const bootstrap = app => {
+  app.use('/slack/events', slackEvents.expressMiddleware())
+}
+
 // An access token (from your Slack app or custom integration - xoxp, xoxb, or xoxa)
 const token = process.env.SLACK_TOKEN
 
@@ -31,8 +35,9 @@ const messages$ = Observable.create(observer =>
 const userInfo = user => web.users.info({ user })
 
 module.exports = {
-  middleware: slackEvents.expressMiddleware.bind(slackEvents),
   messages$,
   send,
-  userInfo
+  userInfo,
+  bootstrap,
+  url: '/slack/events'
 }
