@@ -1,0 +1,12 @@
+{
+  "greeting": {
+    "initial": "Hello %s! I've just registered you to the database",
+    "familiar": "What do you need help with %s?"
+  },
+  "options": {
+    "channelSelect": {
+      "title": "Please select a channel to start posting updates to",
+      "text": "From now on I will also post updates here"
+    }
+  }
+}

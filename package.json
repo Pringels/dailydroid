@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "start:watch": "nodemon index.js",
+    "start:debug": "nodemon --inspect index.js",
     "test": "mocha",
     "test:watch": "mocha --watch"
   },
@@ -20,9 +21,11 @@
   "dependencies": {
     "@slack/client": "^4.2.2",
     "@slack/events-api": "^1.0.1",
+    "@slack/interactive-messages": "^0.4.0",
     "compromise": "^11.9.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "i18n": "^0.8.3",
     "mongoose": "^5.1.4",
     "rxjs": "^6.2.0"
   }

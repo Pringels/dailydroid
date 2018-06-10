@@ -1,16 +1,26 @@
 require('dotenv').config()
-require('./db')
+const mongoose = require('mongoose')
+mongoose.connect('mongodb://localhost/dailydroid')
+i18n = require('i18n')
 
-const { pipe, filter } = require('rxjs/operators')
+i18n.configure({
+  locales: ['en', 'de'],
+  directory: __dirname + '/locales',
+  objectNotation: true
+})
 
 const im = require('./im-interface')
+
+const bot = require('./bot')
 
 const express = require('express')
 const app = express()
 
-const { Channel, User } = require('./models/user')
+const { Channel, User } = require('./models/index')
 
+app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+
 im.bootstrap(app)
 
 app.get('/', (req, res) => {
@@ -19,28 +29,6 @@ app.get('/', (req, res) => {
 })
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
-
-im.messages$
-  .pipe(filter(event => event.user === 'UB11PFQ30'))
-  .subscribe(async event => {
-    //console.log('USER', event)
-    const userInfo = await im.userInfo(event.user)
-    const user = new User({
-      platformId: event.user,
-      displayName: userInfo.user.profile.display_name,
-      updateTime: '8:30',
-      updateActive: false,
-      channels: [],
-      dm: new Channel({
-        platformId: event.channel
-      })
-    })
-    user.save().then(() => console.log('user saved'))
-    im.send({
-      channel: event.channel,
-      text: 'you would like to register!'
-    })
-  })
 
 module.exports = {
   doSomething: x => x + 2

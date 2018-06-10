@@ -8,18 +8,13 @@ const userSchema = new Schema({
   displayName: String,
   updateTime: { type: String, default: '9:00' },
   updateActive: { type: Boolean, default: false },
+  updates: [{ type: Schema.Types.ObjectId, ref: 'Update' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
   dm: { type: Schema.Types.ObjectId, ref: 'Channel' }
 })
 
-const channelSchema = Schema({
-  platformId: String
-})
-
 const User = mongoose.model('User', userSchema)
-const Channel = mongoose.model('Channel', channelSchema)
 
 module.exports = {
-  User,
-  Channel
+  User
 }

@@ -1,7 +1,7 @@
 let imInterface = {}
 
 if (process.env.SLACK_INTEGRATION) {
-  imInterface = require('./slack-interface')
+  imInterface = require('./slack')
 }
 
 module.exports = {
