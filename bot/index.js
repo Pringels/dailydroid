@@ -6,6 +6,7 @@ const { pipe, filter, map, mergeMap } = require('rxjs/operators')
 const { newUserMessages$, existingUserMessages$ } = require('./streams')
 
 newUserMessages$.subscribe(async ([event, _]) => {
+  const userPlatformInfo = await im.userInfo(event.user)
   const user = new User({
     platformId: event.user,
     displayName: userPlatformInfo.user.profile.display_name,
@@ -26,7 +27,6 @@ newUserMessages$.subscribe(async ([event, _]) => {
 existingUserMessages$.subscribe(async ([event, user]) => {
   const userPlatformInfo = await im.userInfo(event.user)
   const channelList = await im.channelList()
-
   im.send({
     channel: event.channel,
     text: i18n.__('greeting.familiar', user.displayName),

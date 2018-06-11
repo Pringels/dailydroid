@@ -13,22 +13,30 @@ const slackInteractions = createMessageAdapter(
   process.env.SLACK_VERIFICATION_TOKEN
 )
 
-const bootstrap = app => {
+let queue
+const delay = process.env.SLACK_MESSAGE_DELAY || 1000
+
+const bootstrap = (app, q) => {
   app.use('/slack/actions', slackInteractions.expressMiddleware())
   app.use('/slack/events', slackEvents.expressMiddleware())
+  queue = q
+  startProcessingQueue()
+}
+
+const startProcessingQueue = () => {
+  queue.process('message.send', ({ channel, text, attachments }, done) => {
+    console.log('SENDING', channel, text, attachments)
+    web.chat
+      .postMessage({ channel, text, attachments })
+      .then(setTimeout(done, delay))
+      .catch(e => pino.error(e))
+  })
 }
 
 const token = process.env.SLACK_TOKEN
 const web = new WebClient(token)
 
-const send = ({ channel, text, attachments }) =>
-  web.chat
-    .postMessage({ channel, text, attachments })
-    .then(res => {
-      // `res` contains information about the posted message
-      console.log('Message sent: ', res.ts)
-    })
-    .catch(console.error)
+const send = payload => queue.add('message.send', payload)
 
 const messages$ = Observable.create(observer =>
   slackEvents.on('message', event => observer.next(event))
