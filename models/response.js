@@ -3,7 +3,7 @@ const Schema = mongoose.Schema,
   ObjectId = Schema.ObjectId
 
 const responseSchema = Schema({
-  test: String,
+  text: String,
   question: { type: Schema.Types.ObjectId, ref: 'Question' }
 })
 

@@ -4,9 +4,98 @@
     "familiar": "What do you need help with %s?"
   },
   "options": {
+    "general": {
+      "title": "What can I help you with today?",
+      "text": "Please select an option"
+    },
     "channelSelect": {
       "title": "Please select a channel to start posting updates to",
-      "text": "From now on I will also post updates here"
+      "text": "From now on I will also post updates here",
+      "deleteTitle": "Your currently active channels:",
+      "deleteText": "Click on a channel to remove it",
+      "added": "Done! :sunglasses: I will post your daily updates to *#%s*",
+      "delete":
+        "I will no longer post your daily updates to *#%s* :arrow_right: :wastebasket:",
+      "confirmDelete": {
+        "title": "Are you sure?",
+        "text": "This channel will no longer receive your daily updates",
+        "ok_text": "Yes",
+        "dismiss_text": "No"
+      },
+      "confirmAdd": {
+        "title": "Are you sure?",
+        "text": "This channel will receive your daily updates.",
+        "ok_text": "Yes",
+        "dismiss_text": "No"
+      }
+    },
+    "modifyUpdateTime": {
+      "title": "What time would you like me to ping you?",
+      "text": "Currently we're scheduled to meet at *%s*",
+      "updated": "Awesome :coffee: See you tomorrow at *%s*"
+    },
+    "deregister": {
+      "success":
+        "Bye %s :wave: If you'd like to register again simply send me a message.",
+      "title": "Are you sure you want to deregister?",
+      "text": "You can always re-register again :smile:",
+      "ok_text": "Yes",
+      "dismiss_text": "No"
+    },
+    "updates": {
+      "complete": "Thanks %s! See you tomorrow :smile:"
     }
+  },
+  "constants": {
+    "updateTimes": [
+      "00:00",
+      "00:30",
+      "01:00",
+      "01:30",
+      "02:00",
+      "02:30",
+      "03:00",
+      "03:30",
+      "04:00",
+      "04:30",
+      "05:00",
+      "05:30",
+      "06:00",
+      "06:30",
+      "07:00",
+      "07:30",
+      "08:00",
+      "08:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "12:00",
+      "12:30",
+      "13:00",
+      "13:30",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+      "18:00",
+      "18:30",
+      "19:00",
+      "19:30",
+      "20:00",
+      "20:30",
+      "21:00",
+      "21:30",
+      "22:00",
+      "22:30",
+      "23:00",
+      "23:30"
+    ]
   }
 }

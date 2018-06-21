@@ -3,6 +3,7 @@ const Schema = mongoose.Schema,
   ObjectId = Schema.ObjectId
 
 const channelSchema = Schema({
+  name: String,
   platformId: String
 })
 

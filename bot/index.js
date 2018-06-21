@@ -1,60 +1,170 @@
-const { User, Response, Channel } = require('../models')
 const im = require('../im-interface')
+const scheduler = require('./scheduler')
 
-const { pipe, filter, map, mergeMap } = require('rxjs/operators')
+const { User, Channel, Update, Question, Response } = require('../models')
+const { actionStreams, messageStreams } = require('./streams')
+const messages = require('./messages')
 
-const { newUserMessages$, existingUserMessages$ } = require('./streams')
-
-newUserMessages$.subscribe(async ([event, _]) => {
+// Handle incoming messages
+messageStreams.newUserMessages$.subscribe(async ([event, _]) => {
   const userPlatformInfo = await im.userInfo(event.user)
+  const dm = new Channel({
+    platformId: event.channel
+  })
+  await dm.save()
   const user = new User({
     platformId: event.user,
     displayName: userPlatformInfo.user.profile.display_name,
-    dm: new Channel({
-      platformId: event.channel
-    })
+    dm
   })
   await user.save()
-  im.send({
-    channel: event.channel,
-    text: i18n.__(
-      'greeting.initial',
-      userPlatformInfo.user.profile.display_name
-    )
-  })
+  scheduler.add(user)
+  im.send(
+    messages.greeting(event.channel, userPlatformInfo.user.profile.display_name)
+  )
 })
 
-existingUserMessages$.subscribe(async ([event, user]) => {
+messageStreams.inactiveUpdateMessages$.subscribe(async ([event, user]) => {
   const userPlatformInfo = await im.userInfo(event.user)
   const channelList = await im.channelList()
-  im.send({
-    channel: event.channel,
-    text: i18n.__('greeting.familiar', user.displayName),
-    attachments: im.generateAttachments('channelSelect', {
-      channels: channelList.channels
-    })
-  })
+  im.send(messages.options(user, event.channel, []))
 })
 
-// userMessages$.subscribe(async ([event, userQuery]) => {
-//   const userPlatformInfo = await im.userInfo(event.user)
-//   let user = await userQuery.exec()
+/**
+ * Options menu
+ */
+actionStreams.optionsChannelSelect$.subscribe(
+  async ({ payload, respond, user }) => {
+    const channelList = await im.channelList()
+    const channels = channelList.channels.filter(
+      channel =>
+        !user.channels
+          .map(userChannel => userChannel.platformId)
+          .includes(channel.id)
+    )
+    const userChannels = channelList.channels.filter(channel =>
+      user.channels
+        .map(userChannel => userChannel.platformId)
+        .includes(channel.id)
+    )
+    im.send(
+      messages.channelSelect(user, user.dm.platformId, channels, userChannels)
+    )
+  }
+)
 
-//   console.log('USER', user)
+actionStreams.optionsModifyUpdateTime$.subscribe(
+  ({ payload, respond, user }) => {
+    im.send(messages.modifyUpdateTime(user.dm.platformId, user.updateTime))
+  }
+)
 
-//   if (!user) {
-//     im.send({
-//       channel: event.channel,
-//       text: 'It looks like you have not registered before. Would you like to?'
-//     })
-//   }
+actionStreams.optionsDeregister$.subscribe(
+  async ({ payload, respond, user }) => {
+    await User.deleteOne({ platformId: user.platformId }).exec()
+    respond(messages.deregisterConfirm(user.displayName))
+  }
+)
 
-//   //user.save().then(() => console.log('user saved'))
-//   // im.send({
-//   //   channel: event.channel,
-//   //   text: 'you would like to register!'
-//   // })
-//   return true
-// })
+/**
+ * Edit channels
+ */
+actionStreams.channelSelect$.subscribe(async ({ payload, respond, user }) => {
+  const id = payload.actions[0].selected_options[0].value
+  const channelList = await im.channelList()
+  const channelName = channelList.channels.find(channel => channel.id === id)
+    .name
+  const channel = await Channel.findOneAndUpdate(
+    { platformId: id, name: channelName },
+    {},
+    { upsert: true, new: true }
+  ).exec()
 
-// const updateMessages$ =
+  user.channels.push(channel)
+  await user.save()
+  respond(messages.channelSelectConfirm(channelName))
+})
+
+actionStreams.channelDelete$.subscribe(async ({ payload, respond, user }) => {
+  const id = payload.actions[0].value
+  const channel = await Channel.findOne({ platformId: id }).exec()
+  if (channel) {
+    user.channels.pull(channel)
+    await user.save()
+    respond(messages.channelDeleteConfirm(channel.name))
+  }
+})
+
+/**
+ * Edit update time
+ */
+actionStreams.modifyUpdateTime$.subscribe(
+  async ({ payload, respond, user }) => {
+    const time = payload.actions[0].selected_options[0].value
+    user.updateTime = time
+    await user.save()
+    scheduler.add(user)
+    respond(messages.modifyUpdateTimeConfirm(time))
+  }
+)
+
+/**
+ * Updates
+ */
+scheduler.updates$.subscribe(async ({ data, done }) => {
+  const now = new Date()
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  )
+  const today = now.getDay()
+
+  const user = await User.findById(data.userId)
+    .populate('dm')
+    .exec()
+
+  const update = user.updates[0]
+
+  if (!user.updateActive) {
+    const questions = await Question.find({ days: today })
+      .sort({ order: 1 })
+      .exec()
+    const update = await new Update({
+      user,
+      questions
+    }).save()
+    user.updateActive = true
+    user.updates.push(update)
+    await user.save()
+    im.send(messages.question(user.dm.platformId, questions[0].text))
+    done()
+  }
+})
+
+messageStreams.activeUpdateMessages$.subscribe(async ([event, user]) => {
+  const update = user.updates[0]
+  const questions = update.questions.filter(
+    question =>
+      !update.responses.some(response => question.id == response.question)
+  )
+  const response = new Response({
+    text: event.text,
+    question: questions[0]
+  })
+  await response.save()
+  update.responses.push(response)
+  await update.save()
+  questions.shift()
+
+  if (questions.length) {
+    im.send(messages.question(user.dm.platformId, questions[0].text))
+  } else {
+    update.completed = true
+    user.updateActive = false
+    await update.save()
+    await user.save()
+    im.send(messages.updateComplete(user.dm.platformId, user.displayName))
+    im.broadcast(user, update)
+  }
+})

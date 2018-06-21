@@ -38,12 +38,27 @@ const web = new WebClient(token)
 
 const send = payload => queue.add('message.send', payload)
 
+const broadcast = (user, updates) => {
+  user.channels.map(channel => {
+    queue.add('message.send', {
+      channel: channel.platformId,
+      text: `updates for ${user.displayName}`
+    })
+  })
+}
+
 const messages$ = Observable.create(observer =>
   slackEvents.on('message', event => observer.next(event))
 )
 
 const selectAction$ = Observable.create(observer =>
   slackInteractions.action({ type: 'select' }, (payload, respond) => {
+    observer.next({ payload, respond })
+  })
+)
+
+const buttonAction$ = Observable.create(observer =>
+  slackInteractions.action({ type: 'button' }, (payload, respond) => {
     observer.next({ payload, respond })
   })
 )
@@ -59,7 +74,9 @@ const generateAttachments = (type, data) => {
 module.exports = {
   messages$,
   selectAction$,
+  buttonAction$,
   send,
+  broadcast,
   userInfo,
   channelList,
   bootstrap,

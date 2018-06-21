@@ -6,7 +6,7 @@ const Schema = mongoose.Schema,
 const updateSchema = new Schema({
   timestamp: Date,
   user: { type: Schema.Types.ObjectId, ref: 'User' },
-  completed: Boolean,
+  completed: { type: Boolean, default: false },
   responses: [{ type: Schema.Types.ObjectId, ref: 'Response' }],
   questions: [{ type: Schema.Types.ObjectId, ref: 'Question' }]
 })

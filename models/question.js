@@ -4,7 +4,8 @@ const Schema = mongoose.Schema,
 
 const questionSchema = Schema({
   text: String,
-  days: [String]
+  order: Number,
+  days: [Number]
 })
 
 const Question = mongoose.model('Question', questionSchema)
