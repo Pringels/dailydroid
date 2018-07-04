@@ -25,7 +25,7 @@ pino = require('pino')()
 
 const { Channel, User } = require('../models/index')
 const im = require('../im-interface')
-const bot = require('../bot')
+
 q = kue.createQueue()
 q.testMode.enter(true)
 
