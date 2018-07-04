@@ -10,7 +10,7 @@
     "start": "node index.js",
     "start:watch": "nodemon index.js",
     "start:debug": "nodemon --inspect index.js",
-    "test": "mocha",
+    "test": "mocha --exit",
     "test:watch": "mocha --watch"
   },
   "devDependencies": {
