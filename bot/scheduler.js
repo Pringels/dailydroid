@@ -30,7 +30,6 @@ const add = async user => {
   }
 
   let existingJob = await findExistingJob(user.id)
-
   if (existingJob) {
     existingJob.delay(targetDate).save()
   } else {

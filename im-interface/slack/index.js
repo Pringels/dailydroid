@@ -25,7 +25,6 @@ const bootstrap = (app, q) => {
 
 const startProcessingQueue = () => {
   queue.process('message.send', ({ channel, text, attachments }, done) => {
-    console.log('SENDING', channel, text, attachments)
     web.chat
       .postMessage({ channel, text, attachments })
       .then(setTimeout(done, delay))
@@ -38,11 +37,15 @@ const web = new WebClient(token)
 
 const send = payload => queue.add('message.send', payload)
 
-const broadcast = (user, updates) => {
+const broadcast = ({ user, update }) => {
   user.channels.map(channel => {
     queue.add('message.send', {
       channel: channel.platformId,
-      text: `updates for ${user.displayName}`
+      text: `updates for <@${user.displayName}>`,
+      attachments: generateAttachments('broadcastUpdate', {
+        user,
+        update
+      })
     })
   })
 }
@@ -53,6 +56,7 @@ const messages$ = Observable.create(observer =>
 
 const selectAction$ = Observable.create(observer =>
   slackInteractions.action({ type: 'select' }, (payload, respond) => {
+    console.log('PAYLOAD', payload)
     observer.next({ payload, respond })
   })
 )

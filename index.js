@@ -3,6 +3,8 @@ require('dotenv').config()
 
 const express = require('express')
 const mongoose = require('mongoose')
+const restify = require('express-restify-mongoose')
+const router = express.Router()
 i18n = require('i18n')
 pino = require('pino')()
 
@@ -24,37 +26,25 @@ const app = express()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
+app.use(function(req, res, next) {
+  console.log('REQ', req)
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  )
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+  next()
+})
+
+restify.serve(router, Question)
+
+app.use(router)
+
 app.get('/', (req, res) => {
-  console.log('Hi')
   res.send('Hello World!')
 })
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
 
 im.bootstrap(app, queue)
-
-const initialQuestions = async () => {
-  const question = new Question({
-    text: 'What did you work on yesterday?',
-    order: 0,
-    days: [0, 1, 2, 3, 4, 5, 6]
-  })
-
-  const question2 = new Question({
-    text: 'What will you work on today?',
-    order: 1,
-    days: [0, 1, 2, 3, 4, 5, 6]
-  })
-
-  const question3 = new Question({
-    text: 'Any blockers?',
-    order: 2,
-    days: [0, 1, 2, 3, 4, 5, 6]
-  })
-
-  question.save()
-  question2.save()
-  question3.save()
-}
-
-//initialQuestions()

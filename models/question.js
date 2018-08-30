@@ -4,6 +4,8 @@ const Schema = mongoose.Schema,
 
 const questionSchema = Schema({
   text: String,
+  updateLabel: String,
+  color: { type: String, default: '#aaffaa' },
   order: Number,
   days: [Number]
 })

@@ -6,7 +6,12 @@ const im = require('../im-interface')
 // Messages
 
 const userMessages$ = im.messages$.pipe(
-  filter(event => !event.bot_id),
+  filter(event => {
+    if (event.message) {
+      return !event.message.bot_id
+    }
+    return !event.bot_id
+  }),
   map(event => {
     const now = new Date()
     const startOfToday = new Date(
@@ -20,7 +25,8 @@ const userMessages$ = im.messages$.pipe(
         path: 'updates dm channels',
         options: { created_on: startOfToday },
         populate: {
-          path: 'questions responses'
+          path: 'responses questions',
+          populate: { path: 'question' }
         }
       })
     ]

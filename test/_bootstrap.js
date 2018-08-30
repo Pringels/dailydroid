@@ -31,7 +31,6 @@ q.testMode.enter(true)
 
 const queue = {
   add: (name, data) => {
-    console.log('CREADTING', name)
     q.create(name, data).save()
   },
   process: (name, cb) =>
@@ -44,6 +43,16 @@ const app = express()
 
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  )
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+  next()
+})
 
 app.listen(3000, () => console.log('Testing app listening on port 3000!'))
 

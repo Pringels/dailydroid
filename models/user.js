@@ -6,7 +6,7 @@ const Schema = mongoose.Schema,
 const userSchema = new Schema({
   platformId: String,
   displayName: String,
-  updateTime: { type: String, default: '9:00' },
+  updateTime: { type: String, default: '09:00' },
   updateActive: { type: Boolean, default: false },
   updates: [{ type: Schema.Types.ObjectId, ref: 'Update' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],

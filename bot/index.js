@@ -27,6 +27,7 @@ messageStreams.newUserMessages$.subscribe(async ([event, _]) => {
 messageStreams.inactiveUpdateMessages$.subscribe(async ([event, user]) => {
   const userPlatformInfo = await im.userInfo(event.user)
   const channelList = await im.channelList()
+  //im.broadcast(user, user.updates[0])
   im.send(messages.options(user, event.channel, []))
 })
 
@@ -35,6 +36,7 @@ messageStreams.inactiveUpdateMessages$.subscribe(async ([event, user]) => {
  */
 actionStreams.optionsChannelSelect$.subscribe(
   async ({ payload, respond, user }) => {
+    console.log('CHANNEL SELECT', payload)
     const channelList = await im.channelList()
     const channels = channelList.channels.filter(
       channel =>
@@ -125,7 +127,6 @@ scheduler.updates$.subscribe(async ({ data, done }) => {
     .exec()
 
   const update = user.updates[0]
-
   if (!user.updateActive) {
     const questions = await Question.find({ days: today })
       .sort({ order: 1 })
@@ -143,28 +144,42 @@ scheduler.updates$.subscribe(async ({ data, done }) => {
 })
 
 messageStreams.activeUpdateMessages$.subscribe(async ([event, user]) => {
-  const update = user.updates[0]
-  const questions = update.questions.filter(
-    question =>
-      !update.responses.some(response => question.id == response.question)
-  )
-  const response = new Response({
-    text: event.text,
-    question: questions[0]
-  })
-  await response.save()
-  update.responses.push(response)
-  await update.save()
-  questions.shift()
-
-  if (questions.length) {
-    im.send(messages.question(user.dm.platformId, questions[0].text))
-  } else {
-    update.completed = true
-    user.updateActive = false
+  let update = user.updates[0]
+  if (update) {
+    const questions = update.questions.filter(
+      question =>
+        !update.responses.some(response => question.id == response.question.id)
+    )
+    const response = new Response({
+      text: event.text,
+      question: questions[0]
+    })
+    await response.save()
+    update.responses.push(response)
     await update.save()
+
+    questions.shift()
+    if (questions.length) {
+      im.send(messages.question(user.dm.platformId, questions[0].text))
+    } else {
+      update.completed = true
+      user.updateActive = false
+      await update.save()
+      await user.save()
+      update = await Update.findById(update.id)
+        .populate({ path: 'responses', populate: { path: 'question' } })
+        .exec()
+      im.send(messages.updateComplete(user.dm.platformId, user.displayName))
+      im.broadcast({ user, update })
+    }
+  } else {
+    /**
+     * We expect a user to have at least one update if they are currently in
+     * "active update" mode. If not, then something must have messed up the
+     * state, so we reset it silently. This should never happen, but we guard
+     * against it anyway.
+     */
+    user.updateActive = false
     await user.save()
-    im.send(messages.updateComplete(user.dm.platformId, user.displayName))
-    im.broadcast(user, update)
   }
 })

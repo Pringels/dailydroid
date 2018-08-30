@@ -105,7 +105,18 @@ const attachments = {
         }
       ]
     }
-  ]
+  ],
+
+  broadcastUpdate: ({ user, update }) =>
+    update.responses.map((response, i) => {
+      return {
+        fallback: response.text,
+        color: response.question.color,
+        title: response.question.updateLabel || response.question.text,
+        text: response.text,
+        mrkdwn_in: ['text']
+      }
+    })
 }
 
 module.exports = attachments
