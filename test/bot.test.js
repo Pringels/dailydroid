@@ -41,13 +41,7 @@ describe('the bot', () => {
       }
     })
     slackMock.interactiveButtons.addResponse({
-      status: 201,
-      type: 'response_url',
-      body: {
-        ok: true,
-        text: 'foo',
-        user: { profile: { display_name: 'john smith' } }
-      }
+      statusCode: 201
     })
     require('./_bootstrap')
   })
@@ -66,6 +60,7 @@ describe('the bot', () => {
       .then(() => {
         setTimeout(() => {
           expect(slackMock.events.calls).to.have.length(1)
+          console.log('CALL', slackMock.events.calls)
           const firstCall = slackMock.events.calls[0]
           expect(firstCall.statusCode).to.equal(200)
           done()
@@ -76,20 +71,20 @@ describe('the bot', () => {
       })
   })
 
-  it('should set the update time 2', function(done) {
-    slackMock.interactiveButtons
+  xit('should set the update time', function(done) {
+    slackMock.reset()
+    slackMock.events
       .send('http://localhost:3000/slack/events', channelSelectPayload)
       .then(() => {
         setTimeout(() => {
-          expect(slackMock.interactiveButtons.calls).to.have.length(1)
+          expect(slackMock.events.calls).to.have.length(1)
           // const responseUrlCall = _.find(slackMock.interactiveButtons.calls, {
           //   type: 'response_url'
           // })
           //console.log('CALLS', slackMock.interactiveButtons.calls)
-          console.log('CALL', slackMock.interactiveButtons.calls)
-          // const responseUrlCall = slackMock.interactiveButtons.calls.find(
-          //   call => call.type === 'response_url'
-          // )
+          const responseUrlCall = slackMock.events.calls.find(
+            call => call.type === 'response_url'
+          )
           console.log('CALL', responseUrlCall)
           expect(responseUrlCall.params.text).to.equal('foo')
           done()
