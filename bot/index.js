@@ -2,11 +2,15 @@ const im = require('../im-interface')
 const scheduler = require('./scheduler')
 
 const { User, Channel, Update, Question, Response } = require('../models')
-const { actionStreams, messageStreams } = require('./streams')
+const { actionStreams, messageStreams, combinedStreams } = require('./streams')
 const messages = require('./messages')
 
 // Handle incoming messages
-messageStreams.newUserMessages$.subscribe(async ([event, _]) => {
+combinedStreams.newUsers$.subscribe(async ([event, _]) => {
+  if (!event.channel) {
+    const channelInfo = await im.openDm(event.user)
+    event.channel = channelInfo.channel.id
+  }
   const userPlatformInfo = await im.userInfo(event.user)
   const dm = new Channel({
     platformId: event.channel
@@ -36,7 +40,6 @@ messageStreams.inactiveUpdateMessages$.subscribe(async ([event, user]) => {
  */
 actionStreams.optionsChannelSelect$.subscribe(
   async ({ payload, respond, user }) => {
-    console.log('CHANNEL SELECT', payload)
     const channelList = await im.channelList()
     const channels = channelList.channels.filter(
       channel =>
@@ -126,7 +129,6 @@ scheduler.updates$.subscribe(async ({ data, done }) => {
     .populate('dm')
     .exec()
 
-  const update = user.updates[0]
   if (!user.updateActive) {
     const questions = await Question.find({ days: today })
       .sort({ order: 1 })
@@ -136,7 +138,7 @@ scheduler.updates$.subscribe(async ({ data, done }) => {
       questions
     }).save()
     user.updateActive = true
-    user.updates.push(update)
+    user.updates.unshift(update)
     await user.save()
     im.send(messages.question(user.dm.platformId, questions[0].text))
     done()

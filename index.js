@@ -8,10 +8,11 @@ const router = express.Router()
 i18n = require('i18n')
 pino = require('pino')()
 
-const { Question } = require('./models/index')
+const { Question, User, Update } = require('./models/index')
 const im = require('./im-interface')
 const bot = require('./bot')
 const queue = require('./utils/queue')
+const adminInterface = require('./admin-interface')
 
 mongoose.connect('mongodb://localhost/dailydroid')
 
@@ -27,22 +28,33 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 app.use(function(req, res, next) {
-  console.log('REQ', req)
   res.header('Access-Control-Allow-Origin', '*')
   res.header(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept'
   )
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-  next()
+  setTimeout(() => next(), 300)
 })
 
 restify.serve(router, Question)
+restify.serve(router, User)
+restify.serve(router, Update)
 
 app.use(router)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
+})
+
+app.get('/api/v1/user-list', async (req, res) => {
+  const users = await im.userList()
+  res.send(users)
+})
+
+app.post('/api/v1/user-register', (req, res) => {
+  adminInterface.registerUser(req.body.user)
+  setTimeout(() => res.status(201).send(), 300)
 })
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))

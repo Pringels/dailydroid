@@ -56,7 +56,6 @@ const messages$ = Observable.create(observer =>
 
 const selectAction$ = Observable.create(observer =>
   slackInteractions.action({ type: 'select' }, (payload, respond) => {
-    console.log('PAYLOAD', payload)
     observer.next({ payload, respond })
   })
 )
@@ -68,6 +67,8 @@ const buttonAction$ = Observable.create(observer =>
 )
 
 const userInfo = user => web.users.info({ user })
+const userList = () => web.users.list()
+const openDm = user => web.im.open({ user, return_im: true })
 
 const channelList = () => web.channels.list()
 
@@ -82,6 +83,8 @@ module.exports = {
   send,
   broadcast,
   userInfo,
+  openDm,
+  userList,
   channelList,
   bootstrap,
   generateAttachments

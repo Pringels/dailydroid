@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Questions from './views/Questions.vue'
 import Users from './views/Users.vue'
+import Updates from './views/Updates.vue'
 
 Vue.use(Router)
 
@@ -18,6 +19,11 @@ export default new Router({
       path: '/users',
       name: 'users',
       component: Users
+    },
+    {
+      path: '/updates',
+      name: 'updates',
+      component: Updates
     },
     {
       path: '/about',

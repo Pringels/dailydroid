@@ -2,6 +2,7 @@ const { User } = require('../models')
 const { filter, map, mergeMap, tap, share } = require('rxjs/operators')
 const { merge } = require('rxjs')
 const im = require('../im-interface')
+const admin = require('../admin-interface')
 
 // Messages
 
@@ -109,6 +110,14 @@ const modifyUpdateTime$ = userActions$.pipe(
   filter(({ payload }) => payload.callback_id === 'modifyUpdateTime')
 )
 
+/**
+ * Requests from admin interface
+ */
+
+const registerNewUser$ = admin.requests$.pipe(
+  filter(([{ type }, _]) => type === 'registerNewUser')
+)
+
 module.exports = {
   messageStreams: {
     userMessages$,
@@ -125,5 +134,11 @@ module.exports = {
     channelSelect$,
     channelDelete$,
     modifyUpdateTime$
+  },
+  adminStreams: {
+    registerNewUser$
+  },
+  combinedStreams: {
+    newUsers$: merge(newUserMessages$, registerNewUser$)
   }
 }

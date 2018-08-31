@@ -36,7 +36,7 @@
       prop="color"
       label="Color" width="70">
       <template slot-scope="scope">
-       <div :style="{backgroundColor: scope.row.color, width: '20px', height: '20px'}"></div>
+       <div class="colorSwatch" :style="{backgroundColor: scope.row.color}"></div>
       </template>
     </el-table-column>
     <el-table-column
@@ -83,10 +83,9 @@
         </el-form-item>
 
       </el-form>
-              <el-button v-if="formQuestion" type="info" icon="el-icon-close" circle @click="handleCancel"></el-button>
-              <el-button v-if="formQuestion && !formQuestion._id" type="success" circle icon="el-icon-check" @click="create"></el-button>
-        <el-button v-if="formQuestion && formQuestion._id" type="primary" circle icon="el-icon-check" @click="save"></el-button>
-
+      <el-button v-if="formQuestion" type="info" icon="el-icon-close" circle @click="handleCancel"></el-button>
+       <el-button v-if="formQuestion && !formQuestion._id" type="success" circle icon="el-icon-check" @click="create"></el-button>
+      <el-button v-if="formQuestion && formQuestion._id" type="primary" circle icon="el-icon-check" @click="save"></el-button>
 </el-card>
 
      
@@ -191,6 +190,13 @@ export default {
     color: #555;
     font-weight: bold;
   }
+}
+
+.colorSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  border: 2px solid #ddd;
 }
 
 hr {

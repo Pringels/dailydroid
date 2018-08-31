@@ -2,6 +2,7 @@
   <div id="app">
      <el-container>
     <el-header class="header">
+      <span class="el-icon-time"></span>
       <h1>Dailydroid</h1>
     </el-header>
     <el-container>
@@ -16,6 +17,10 @@
             <el-menu-item index="users">
               <i class="el-icon-star-on"></i>
               <span>Users</span>
+            </el-menu-item>
+            <el-menu-item index="updates">
+              <i class="el-icon-check"></i>
+              <span>Updates</span>
             </el-menu-item>
           </el-menu>
       </el-aside>
@@ -39,7 +44,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -48,7 +53,20 @@ export default {
 }
 
 .header {
-  background-color: #2c3e50;
+  background-color: #409eff;
   color: #eeefff;
+
+  padding-bottom: 65px;
+
+  h1 {
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  span {
+    height: 40px;
+    width: 20px;
+    font-size: 24px;
+  }
 }
 </style>
