@@ -146,7 +146,7 @@ export default {
     },
     create() {
       this.loading = true;
-      axios.post('http://165.227.161.43:3000/api/v1/question', {
+      axios.post('http://165.227.161.43/api/v1/question', {
         ...this.formQuestion, 
         days: this.parseWeekDays(this.formQuestion.days)
       }).then(({data}) => {
@@ -156,7 +156,7 @@ export default {
     },
     save() {
       this.loading = true;
-      axios.put(`http://165.227.161.43:3000/api/v1/question/${this.formQuestion._id}`, {
+      axios.put(`http://165.227.161.43/api/v1/question/${this.formQuestion._id}`, {
         ...this.formQuestion, 
         days: this.parseWeekDays(this.formQuestion.days)
       }).then(({data}) => {
@@ -166,7 +166,7 @@ export default {
     },
     delete(question) {
       this.loading = true;
-      axios.delete(`http://165.227.161.43:3000/api/v1/question/${question._id}`, {
+      axios.delete(`http://165.227.161.43/api/v1/question/${question._id}`, {
       }).then(({data}) => {
         this.loading = false;
         this.get();
