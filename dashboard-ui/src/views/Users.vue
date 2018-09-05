@@ -65,7 +65,7 @@ export default {
     },
     getSlackMemberList() {
       this.loading = true;
-      return axios.get('http://localhost:3000/api/v1/user-list').then(({data}) => {
+      return axios.get('http://165.227.161.43:3000/api/v1/user-list').then(({data}) => {
         this.members = data.members
           .filter(member => !member.is_bot && member.name !== 'slackbot')
           .map((member, i) => ({
@@ -78,7 +78,7 @@ export default {
     },
     getUserList() {
       this.loading = true;
-      return axios.get('http://localhost:3000/api/v1/user').then(({data}) => {
+      return axios.get('http://165.227.161.43:3000/api/v1/user').then(({data}) => {
         this.userData = data;
         this.users = data.map((user, i) => user.platformId);
         this.initialUsers = [...this.users]
@@ -87,14 +87,14 @@ export default {
     },
     registerUser(user) {
       this.loading = true;
-      axios.post('http://localhost:3000/api/v1/user-register', {user}).then(() => {
+      axios.post('http://165.227.161.43:3000/api/v1/user-register', {user}).then(() => {
         this.getUserList();
       })
     },
     removeUser(user) {
       this.loading = true;
       const userId = this.userData.find(userObj => userObj.platformId === user)._id
-      axios.delete(`http://localhost:3000/api/v1/user/${userId}`).then(() => {
+      axios.delete(`http://165.227.161.43:3000/api/v1/user/${userId}`).then(() => {
         this.getUserList();
       })
     }

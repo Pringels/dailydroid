@@ -40,7 +40,7 @@ export default {
     },
     getUpdates() {
       this.loading = true;
-      return axios.get('http://localhost:3000/api/v1/update?populate=[{"path":"user"},{"path":"responses"},{"path":"questions"}]').then(({data}) => {
+      return axios.get('http://165.227.161.43:3000/api/v1/update?populate=[{"path":"user"},{"path":"responses"},{"path":"questions"}]').then(({data}) => {
         this.updates = data;
         this.loading = false;
       })
